@@ -58,6 +58,7 @@ that are part of Git repositories).
                         -     reblame at commit
                         ~     reblame at [count]th first grandparent
                         P     reblame at [count]th parent (like HEAD^[count])
+                        u     undo reblame and go back to last blamed commit
 
 :[range]Git blame [...] If a range is given, just that part of the file will
 :Git blame [...] {file} be blamed, and a horizontal split without

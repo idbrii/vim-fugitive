@@ -5509,6 +5509,15 @@ function! s:BlameJump(suffix, ...) abort
   if empty(path)
     return 'echoerr ' . string('fugitive: could not determine filename for blame')
   endif
+  if suffix == "previous"
+    if !exists("b:fugitive_blame_previous_commit")
+      return 'echoerr ' . string('fugitive: must jump before you can go back')
+    endif
+    let suffix = ''
+    let commit = b:fugitive_blame_previous_commit.commit
+    let path = b:fugitive_blame_previous_commit.path
+    let lnum = b:fugitive_blame_previous_commit.lnum
+  endif
   if commit =~# '^0*$'
     let commit = 'HEAD'
     let suffix = ''
@@ -5553,6 +5562,7 @@ function! s:BlameJump(suffix, ...) abort
   elseif delta < 0
     execute 'normal! '.(-delta)."\<C-Y>"
   endif
+  let b:fugitive_blame_previous_commit = { 'commit': commit, 'path': path, 'lnum': lnum }
   keepjumps syncbind
   redraw
   echo ':Git blame' s:fnameescape(blame_args)
@@ -5654,6 +5664,7 @@ function! s:BlameFileType() abort
   call s:Map('n', '<CR>', ':<C-U>exe <SID>BlameCommit("exe <SID>BlameLeave()<Bar>edit")<CR>', '<silent>')
   call s:Map('n', '-',    ':<C-U>exe <SID>BlameJump("")<CR>', '<silent>')
   call s:Map('n', 'P',    ':<C-U>exe <SID>BlameJump("^".v:count1)<CR>', '<silent>')
+  call s:Map('n', 'u',    ':<C-U>exe <SID>BlameJump("previous")<CR>', '<silent>')
   call s:Map('n', '~',    ':<C-U>exe <SID>BlameJump("~".v:count1)<CR>', '<silent>')
   call s:Map('n', 'i',    ':<C-U>exe <SID>BlameCommit("exe <SID>BlameLeave()<Bar>edit")<CR>', '<silent>')
   call s:Map('n', 'o',    ':<C-U>exe <SID>BlameCommit("split")<CR>', '<silent>')
