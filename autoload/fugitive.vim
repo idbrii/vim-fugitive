@@ -2824,7 +2824,11 @@ function! s:StatusProcess(result, stat) abort
       let stat.diff['Staged'] = fugitive#Execute(diff_cmd + ['--cached'], function('len'))
     endif
     if len(unstaged)
-      let stat.diff['Unstaged'] = fugitive#Execute(diff_cmd + ['--'] + map(copy(unstaged), 'stat.work_tree . "/" . v:val.relative[0]'), function('len'))
+      let unstaged_diff_cmd = diff_cmd + ['--']
+      if len(unstaged) < 100
+        call extend(unstaged_diff_cmd, map(copy(unstaged), 'stat.work_tree . "/" . v:val.relative[0]'))
+      endif
+      let stat.diff['Unstaged'] = fugitive#Execute(unstaged_diff_cmd, function('len'))
     endif
 
     let [stat.staged, stat.unstaged, stat.untracked] = [staged, unstaged, untracked]
